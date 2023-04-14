@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block content %}
+<div class="contact-us section" id="contact_section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.25s" data-wow-duration="0.5s">
+                {% if warning_message %}
+                <span style="color:#FF0000;">
+                                        {{ warning_message }}
+                                    </span>
+                {% endif %}
+                {% if success_message %}
+                <span style="color:#8866ff;">
+                                        {{ success_message }}
+                                    </span>
+                {% endif %}
+                <form action="/" id="contact" method="POST">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="fill-form">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                    </div>
+                                    <div class="col-lg-6">
+
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <fieldset>
+                                            <div class="autocomplete">
+                                                <input class="form-control" id="condName"
+                                                       name="condName"
+                                                       onchange="getConditionName()"
+                                                       onclick="getConditionName()"
+                                                       placeholder="ID=2_to_150|GUN=Minigun,RocketLauncher"
+                                                       required
+                                                />
+                                            </div>
+                                        </fieldset>
+                                        <fieldset>
+                                            <button class="main-button"
+                                                    form="contact"
+                                                    id="runningBtn"
+                                                    name="runningBtn"
+                                                    onclick="getSubmitEvent(event)"
+                                                    type="submit"
+                                                    value="RUN">
+                                                Running now
+
+                                            </button>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input hidden id='prj_name' name="prj_name" type='text'/>
+                    <input hidden id='tc_name' name="tc_name" type='text'/>
+                    <input hidden id='app_ver' name="app_ver" type='text'/>
+                    <input hidden id='device_name' name="device_name" type='text'/>
+                    <input hidden id='submit_button' name="submit_button" type='text'/>
+                    <!-- New Table -->
+                    <div class="w-full overflow-hidden rounded-lg shadow-xs">
+
+                        <div class="w-full overflow-x-auto">
+                            <table class="w-full whitespace-normal" id="homeRunningTable">
+                                <thead>
+                                <tr
+                                        class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
+                                >
+                                    <th class="px-4 py-3">PROJECT</th>
+                                    <th class="px-4 py-3">TESTCASE</th>
+                                    <th class="px-4 py-3">DEVICE</th>
+                                    <th class="px-4 py-3">CONDITION</th>
+                                    <th class="px-4 py-3">STATUS</th>
+                                </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                                {% for run in runnings %}
+                                <tr class="text-gray-700 dark:text-gray-400">
+                                    <td class="px-4 py-3 text-sm">
+                                        <div>
+                                            <p class="font-semibold"> {{ run.prj_name }}</p>
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-sm">
+                                        <div>
+                                            <p> {{ run.tc_name }}</p>
+                                        </div>
+
+                                    </td>
+
+                                    <td class="px-4 py-3 text-sm">
+                                        <div>
+                                            <p> {{ run.device_name }}</p>
+                                        </div>
+
+                                    </td>
+
+                                    <td class="px-4 py-3 text-sm">
+                                        {% if run.status == 'Waiting' %}
+                                        <span class="px-2 py-1 font-semibold leading-tight text-gray-700 bg-orange-100 rounded-full dark:text-white dark:bg-gray-600">
+                          {{ run.status }}
+                            </span>
+                                        {% endif %}
+
+                                        {% if run.status == 'Running' %}
+                                        <span class="px-2 py-1 font-semibold leading-tight text-orange-700 bg-orange-100 rounded-full dark:text-white dark:bg-orange-600">
+                          {{ run.status }}
+                            </span>
+                                        {% endif %}
+
+                                        {% if run.status == 'Done' %}
+                                        <span
+                                                class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100"
+                                        >
+                          {{ run.status }}
+                        </span>
+                                        {% endif %}
+
+                                        {% if run.status == 'Error' %}
+                                        <span
+                                                class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-700"
+                                        >
+                          {{ run.status }}
+                        </span>
+                                        {% endif %}
+
+
+                                    </td>
+
+                                    <td class="px-4 py-3 text-sm">
+                                        <div>
+                                            <p> {{ run.tc_condition }}</p>
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+                                        <span class="flex items-center col-span-3">
+                                            Total {{ total_testcase_running }} testcase running
+                                        </span>
+                        </div>
+                        {{ pagination.links }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+<!--function getSubmitEvent(event) {-->
+<!--  console.log(event.target.value)-->
+<!--  submit_button.setAttribute('value',event.target.value)-->
+<!--}-->
+
+<!--setPrjId()-->
+<!--function setPrjId(){-->
+<!--    var prj_name = document.getElementById("prj_name");-->
+<!--    var el_value_option = document.getElementById("prj_select").value;-->
+<!--    var val = el_value_option;-->
+<!--    var a = document.getElementById("prj_select");-->
+<!--    for (var i = 0; i < a.length; i++) {-->
+<!--        var option = a.options[i];-->
+<!--        if (option.value == val) {-->
+<!--            prj_name.setAttribute('value',option.value);-->
+<!--            getTestcaseProject()-->
+<!--        }-->
+<!--     }-->
+<!-- }-->
+
+<!--setTcName()-->
+<!--function setTcName(){-->
+<!--    var tc_name = document.getElementById("tc_name");-->
+<!--    var el_value_option = document.getElementById("tc_select").value;-->
+<!--    var val = el_value_option;-->
+<!--    var a = document.getElementById("tc_select");-->
+<!--    for (var i = 0; i < a.length; i++) {-->
+<!--        var option = a.options[i];-->
+<!--        if (option.value == val && option.value != "<-&#45;&#45; Select testcase -&ndash;&gt;" ) {-->
+<!--            tc_name.setAttribute('value',option.value);-->
+<!--        }-->
+<!--     }-->
+<!-- }-->
+
+
+<!--setAppVer()-->
+<!--function setAppVer(){-->
+<!--    var app_ver = document.getElementById("app_ver");-->
+<!--    var el_value_option = document.getElementById("appver_select").value;-->
+<!--    var val = el_value_option;-->
+<!--    var a = document.getElementById("appver_select");-->
+<!--    for (var i = 0; i < a.length; i++) {-->
+<!--        var option = a.options[i];-->
+<!--        if (option.value == val && option.value != "<-&#45;&#45; Select appver -&ndash;&gt;" ) {-->
+<!--            app_ver.setAttribute('value',option.value);-->
+<!--        }-->
+<!--     }-->
+<!-- }-->
+
+
+<!--setDeviceName()-->
+<!--function setDeviceName(){-->
+<!--    var device_name = document.getElementById("device_name");-->
+<!--    var el_value_option = document.getElementById("device_select").value;-->
+<!--    var val = el_value_option;-->
+<!--    var a = document.getElementById("device_select");-->
+<!--    for (var i = 0; i < a.length; i++) {-->
+<!--        var option = a.options[i];-->
+<!--        if (option.value == val && option.value != "<-&#45;&#45; Select device -&ndash;&gt;" ) {-->
+<!--            device_name.setAttribute('value',option.value);-->
+<!--        }-->
+<!--     }-->
+<!-- }-->
+
+<!--&lt;!&ndash;autocomplete condition name->-->
+<!--getConditionName()-->
+<!--function getConditionName(){-->
+<!--    var condList = []-->
+<!--    {% for cond in conditions %}-->
+<!--        condList.push("{{ cond.cond_name }}");-->
+<!--   {% endfor %}-->
+
+<!--    autocomplete(document.getElementById("condName"), condList);-->
+
+<!--}-->
+
+<!--function getTestcaseProject(){-->
+<!--    &lt;!&ndash;    refresh new data&ndash;&gt;-->
+<!--    document.getElementById('tc_select').innerText = null;-->
+<!--    document.getElementById('device_select').innerText = null;-->
+<!--    document.getElementById('appver_select').innerText = null;-->
+
+
+<!--    &lt;!&ndash;    var &ndash;&gt;-->
+<!--    var prj_name = document.getElementById("prj_name").value;-->
+<!--    var selectTcElement = document.getElementById('tc_select');-->
+<!--    var selectDeviceElement = document.getElementById('device_select');-->
+<!--    var selectAppVerElement = document.getElementById('appver_select');-->
+
+<!--    &lt;!&ndash;    get-list-tc-name&ndash;&gt;-->
+<!--    fetch('/get-list-tc-name/'+ prj_name)-->
+<!--   .then(response => {return response.json()})-->
+<!--   .then(res => {-->
+<!--        var res_len = res.length-->
+<!--        if(res_len > 0){-->
+<!--            selectTcElement.add(new Option("<-&#45;&#45; Select testcase -&ndash;&gt;"));-->
+<!--            for (var i = 0; i < res_len; i++) {-->
+<!--                selectTcElement.add(new Option(res[i]));-->
+<!--            }-->
+<!--&lt;!&ndash;            tc_name.setAttribute('value',res[0]);&ndash;&gt;-->
+<!--        }-->
+<!--        else{-->
+<!--            selectTcElement.add(new Option("<-&#45;&#45; None testcase -&ndash;&gt;"));-->
+<!--        }-->
+<!--   })-->
+
+<!--    &lt;!&ndash;    get-list-appver&ndash;&gt;-->
+<!--   fetch('/get-list-appver')-->
+<!--   .then(response => {return response.json()})-->
+<!--   .then(res => {-->
+<!--        var res_len = res.length-->
+<!--        if(res_len > 0) {-->
+<!--            selectAppVerElement.add(new Option("<-&#45;&#45; Select appver -&ndash;&gt;"));-->
+<!--            for (var i = 0; i < res_len; i++) {-->
+<!--                selectAppVerElement.add(new Option(res[i]));-->
+<!--            }-->
+<!--&lt;!&ndash;            app_ver.setAttribute('value',res[0]);&ndash;&gt;-->
+<!--        }-->
+<!--        else{-->
+<!--            selectAppVerElement.add(new Option("<-&#45;&#45; None appver -&ndash;&gt;"));-->
+<!--        }-->
+<!--   })-->
+
+
+<!--   &lt;!&ndash;    get-list-device-name&ndash;&gt;-->
+<!--   fetch('/get-list-device-name/'+ prj_name)-->
+<!--   .then(response => {return response.json()})-->
+<!--   .then(res => {-->
+<!--        var res_len = res.length-->
+<!--        if(res_len > 0){-->
+<!--            selectDeviceElement.add(new Option("<-&#45;&#45; Select device -&ndash;&gt;"));-->
+<!--            for (var i = 0; i < res_len; i++) {-->
+<!--                selectDeviceElement.add(new Option(res[i]));-->
+<!--            }-->
+<!--&lt;!&ndash;            device_name.setAttribute('value',res[0]);&ndash;&gt;-->
+<!--        }-->
+<!--        else{-->
+<!--            selectDeviceElement.add(new Option("<-&#45;&#45; None device -&ndash;&gt;"));-->
+<!--        }-->
+
+<!--   })-->
+<!--}-->
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}
+

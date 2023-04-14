@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./services/web
+    command: gunicorn --workers=3 --threads=3 --bind 0.0.0.0:5000 app:app
+    container_name: auto-test-app-dev
+    restart: always
+    volumes:
+      - ./services/web/:/usr/src/app/
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+
+  db:
+      image: postgres:13-alpine
+      container_name: auto-test-db-dev
+      restart: always
+      ports:
+        - "5430:5432"
+      volumes:
+        - postgres_data_dev:/var/lib/postgresql/data/
+      env_file:
+        - ./.env.dev.db
+volumes:
+  postgres_data_dev:
+
+
+networks:
+  default:
+    external:
+      name: automation-testing-network

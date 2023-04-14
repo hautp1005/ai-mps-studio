@@ -1,46 +1,47 @@
-import cv2
-import pytesseract
-import spacy
-import openpyxl
-
-# Load the image and convert it to grayscale
-image = cv2.imread('./workflow.png')
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-# Use OCR to extract the text from the image
-text = pytesseract.image_to_string(gray)
-
-# # Load the English language model for NLP
-# nlp = spacy.load('en_core_web_sm')
+# import openpyxl
 #
-# # Use NLP to identify key actions and steps in the workflow
-# doc = nlp(text)
-# actions = []
-# for token in doc:
-#     if token.text.lower() in ['go', 'enter', 'click']:
-#         actions.append(token)
+# # Open the Excel file
+# workbook = openpyxl.load_workbook('sz_tc.xlsx')
 #
-# # Use the identified actions to generate test cases
-# test_cases = []
-# for i in range(len(actions)):
-#     if actions[i].text.lower() == 'go':
-#         test_cases.append(['Go to the website\'s sign-up page'])
-#     elif actions[i].text.lower() == 'enter':
-#         if actions[i+1].text.lower() == 'a':
-#             test_cases.append(['Enter a valid {} and verify that it is accepted by the website'.format(actions[i+2].text.lower())])
-#         elif actions[i+1].text.lower() == 'an':
-#             test_cases.append(['Enter an invalid {} and verify that an error message is displayed'.format(actions[i+2].text.lower())])
+# # Select the worksheet by name
+# worksheet = workbook['Checklist_']
+#
+# # Create a new workbook to write the output
+# output_workbook = openpyxl.Workbook()
+#
+# # Select the first sheet of the output workbook
+# output_sheet = output_workbook.active
+#
+# # Iterate over each row in the original worksheet
+# for row in worksheet.iter_rows():
+#     # Create a new row in the output worksheet
+#     output_row = []
+#     for cell in row:
+#         # Check if the cell is within a merged cell range
+#         if cell.coordinate in [cell_range.coord for cell_range in worksheet.merged_cells.ranges]:
+#             # Get the merged cell value and add it to the output row
+#             merged_cell = worksheet.cell(*worksheet.merged_cells(cell.row, cell.column)[0].coord)
+#             output_row.append(merged_cell.value)
 #         else:
-#             test_cases.append(['Enter {} and verify that it is accepted by the website'.format(' '.join(actions[i+1:i+3]).lower())])
-#     elif actions[i].text.lower() == 'click':
-#         test_cases.append(['Click on the "Create Account" button and verify that a new user account is created successfully'])
+#             # Add the cell value to the output row
+#             output_row.append(cell.value)
 #
-# # Export the test cases to an Excel file
-# workbook = openpyxl.Workbook()
-# worksheet = workbook.active
-# worksheet.title = 'Test Cases'
+#     # Write the output row to the output worksheet
+#     output_sheet.append(output_row)
 #
-# for i in range(len(test_cases)):
-#     for j in range(len(test_cases[i])):
-#         worksheet.cell(row=i+1, column=j+1, value=test_cases[i][j])
-#
-# workbook.save('./test_cases.xlsx')
+# # Save the output workbook
+# output_workbook.save('output.xlsx')
+
+import pandas as pd
+
+# Read the Excel file
+df = pd.read_excel('output.xlsx')
+
+# Set display options to show merged cells
+pd.set_option('display.expand_frame_repr', False)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+
+# Print the table with merged rows
+print(df)

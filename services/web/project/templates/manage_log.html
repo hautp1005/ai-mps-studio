@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% extends 'admin/base.html' %}
+{% block content %}
+
+<main class="h-full overflow-y-auto">
+    <div class="container px-6 mx-auto grid">
+        <div class="container px-6 mx-auto grid">
+                <h2
+                        class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
+                >
+                    Manage Logs
+                </h2>
+        </div>
+        <!-- New Table -->
+        <div class="w-full overflow-hidden rounded-lg shadow-xs">
+
+            <div class="w-full overflow-x-auto">
+                <table class="w-full whitespace-no-wrap" id="deviceTable">
+                    <thead>
+                    <tr
+                            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
+                    >
+                        <th class="px-4 py-3">User Action</th>
+                        <th class="px-4 py-3">Logs</th>
+                        <th class="px-4 py-3">Action</th>
+                        <th class="px-4 py-3">Created At</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                    {% for lg in logs %}
+                    <tr class="text-gray-700 dark:text-gray-400">
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                                <p class="font-semibold"> {{ lg.user_id }}</p>
+                            </div>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                                <p> {{ lg.logs }}</p>
+                            </div>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                                <p> {{ lg.action }}</p>
+                            </div>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-sm">
+                            {{ lg.created_at }}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{ pagination.links }}
+    </div>
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+</script>
+{% endblock %}

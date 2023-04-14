@@ -1,0 +1,125 @@
+<!--<html>-->
+<!--   <body>-->
+
+<!--      <form action = "/add_tc" method = "POST">-->
+<!--         <p><h3>Adding TestCase...</h3></p>-->
+<!--         <p><input type = 'text' name = 'tc'/></p>-->
+<!--         <p><input type = 'submit' value = 'Send'/></p>-->
+<!--      </form>-->
+
+<!--   </body>-->
+<!--</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TestCase for each projects</title>
+    <!--    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
+</head>
+<body>
+<h2>TestCase for projects</h2>
+<form action="/add_tc" method="POST" id="form_input_tc" onsubmit="return checkform()">
+    <table align="left" border="0">
+        <tr>
+            <th align="left" width="200">Project</th>
+            <th align="left" width="400">TestCase</th>
+            <th align="left" width="300">Pre-condition</th>
+            <th align="left" width="200">AppVersion</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td align="left">
+                <select id="prj_select" name="prj_select" onchange='setProjectName()'>
+                    <option value="dead-target-tests">Dead Target</option>
+                    <option value="sniper-zombies-tests">Sniper Zombies</option>
+                </select>
+            </td>
+            <td align="left">
+                <select id="tc_select" name="tc_select" onchange='setTestCaseName()'>
+                    <option value="DT-13806">Test battle and get resource game</option>
+                    <option value="DT-13762">Test Mua súng chơi endless và retry 5 lần khi battle fail</option>
+                    <option value="DT-13712">Test Mua súng và nâng cấp súng theo recommendation</option>
+                </select>
+            </td>
+            <td align="left">
+                <textarea id="precondition" name="precondition" rows="4" cols="30"></textarea>
+            </td>
+
+            <td align="left">
+                <select name="appver_select">
+                    <option value="beta_latest">beta_latest</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <input hidden id='tc_name' name="tc_name" type='text' />
+    <input hidden id='prj_name' name="prj_name" type='text' />
+</form>
+<input type="submit" form="form_input_tc" value="Run" style="height:100px;width:200px;font-size:30px" />
+</body>
+
+<script>
+    var tc_name = document.getElementById("tc_name");
+    var el_value_option = document.getElementById("tc_select").value;
+    var val = el_value_option;
+    var a = document.getElementById("tc_select");
+    for (var i = 0; i < a.length; i++) {
+        var option = a.options[i];
+        if (option.value == val) {
+            tc_name.setAttribute('value',option.text);
+        }
+     }
+
+    function setTestCaseName(){
+        var tc_name = document.getElementById("tc_name");
+        var el_value_option = document.getElementById("tc_select").value;
+        var val = el_value_option;
+        var a = document.getElementById("tc_select");
+        for (var i = 0; i < a.length; i++) {
+            var option = a.options[i];
+            if (option.value == val) {
+                tc_name.setAttribute('value',option.text);
+            }
+         }
+      }
+
+        var prj_name = document.getElementById("prj_name");
+        var el_value_option = document.getElementById("prj_select").value;
+        var val = el_value_option;
+        var a = document.getElementById("prj_select");
+        for (var i = 0; i < a.length; i++) {
+            var option = a.options[i];
+            if (option.value == val) {
+                prj_name.setAttribute('value',option.value);
+            }
+         }
+      function setProjectName(){
+        var prj_name = document.getElementById("prj_name");
+        var el_value_option = document.getElementById("prj_select").value;
+        var val = el_value_option;
+        var a = document.getElementById("prj_select");
+        for (var i = 0; i < a.length; i++) {
+            var option = a.options[i];
+            if (option.value == val) {
+                prj_name.setAttribute('value',option.value);
+            }
+         }
+      }
+
+      function checkform(){
+        var precondition= document.getElementById("precondition").value.trim().toUpperCase();
+        if(precondition=== '' || precondition=== null) {
+          alert("Precondition is blank");
+          document.getElementById("precondition").backgroundColor = "#ff6666";
+          event.preventDefault();
+          return false;
+        }
+     }
+
+
+</script>
+
+</html>
+

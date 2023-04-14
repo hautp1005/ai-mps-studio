@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+{% extends 'admin/base.html' %}
+{% block content %}
+
+<main class="h-full overflow-y-auto">
+    <div class="container px-6 mx-auto grid">
+        <form action="/manage-user" id="form_manage_user" method="POST">
+            <!-- Cards -->
+            <div class="container px-6 mx-auto grid">
+                <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+                    Manage User
+                </h2>
+                {% if warning_message %}
+                <p><strong>{{ warning_message }}</strong></p>
+                {% endif %}
+                {% if success_message %}
+                <p><strong>{{ success_message }}</strong></p>
+                {% endif %}
+                <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+                    <label class="block text-sm">
+                <span class="text-gray-700 dark:text-gray-400 font-semibold">
+                  User Name
+                </span>
+                        <div class="autocomplete">
+                            <input class="block w-full mt-1 autocomplete text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-textarea focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                   id="username"
+                                   name="username"
+                                   onchange="getUserInfo()"
+                                   onclick="getUserInfo()"
+                                   placeholder="Jane Doe"
+                            />
+                        </div>
+                    </label>
+                    <div class="mt-4 text-sm">
+                <span class="text-gray-700 dark:text-gray-400 font-semibold">
+                  Account Status
+                </span>
+                        <div class="mt-2">
+                            <label
+                                    class="inline-flex items-center text-gray-600 dark:text-gray-400"
+                            >
+                                <input
+                                        checked
+                                        class="text-purple-600 form-radio focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                        id="active"
+                                        name="accountStatus"
+                                        onchange="displayRadioValueAccountStatus()"
+                                        type="radio"
+                                        value="active"
+                                />
+                                <span class="ml-2">Active</span>
+                            </label>
+                            <label
+                                    class="inline-flex items-center ml-6 text-gray-600 dark:text-gray-400">
+                                <input
+                                        class="text-purple-600 form-radio focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                        id="deactivate"
+                                        name="accountStatus"
+                                        onchange="displayRadioValueAccountStatus()"
+                                        type="radio"
+                                        value="deactivate"
+                                />
+                                <span class="ml-2">Deactivate</span>
+                            </label>
+                        </div>
+                    </div>
+                                        <div class="mt-4 text-sm">
+                <span class="text-gray-700 dark:text-gray-400 font-semibold">
+                  User Role
+                </span>
+                        <div class="mt-2">
+                            <label
+                                    class="inline-flex items-center text-gray-600 dark:text-gray-400"
+                            >
+                                <input
+                                        class="text-purple-600 form-radio focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                        id="sAdmin"
+                                        name="userRole"
+                                        onchange="displayRadioValueUserRole()"
+                                        type="radio"
+                                        value="supper"
+                                />
+                                <span class="ml-2">Supper Admin</span>
+                            </label>
+                            <label
+                                    class="inline-flex items-center ml-6 text-gray-600 dark:text-gray-400">
+                                <input
+                                        class="text-purple-600 form-radio focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                        id="admin"
+                                        name="userRole"
+                                        onchange="displayRadioValueUserRole()"
+                                        type="radio"
+                                        value="admin"
+                                />
+                                <span class="ml-2">Admin</span>
+                            </label>
+
+                                                        <label
+                                    class="inline-flex items-center ml-6 text-gray-600 dark:text-gray-400">
+                                <input
+                                        class="text-purple-600 form-radio focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                        id="view"
+                                        name="userRole"
+                                        onchange="displayRadioValueUserRole()"
+                                        type="radio"
+                                        value="view"
+                                />
+                                <span class="ml-2">View</span>
+                            </label>
+
+                            <label class="block mt-4 text-sm">
+                                <span class="text-gray-700 dark:text-gray-400 font-semibold">Note</span>
+                                <input class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-textarea focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray"
+                                   id="userDesc"
+                                   name="userDesc"
+                                   placeholder="Jane Doe" width="300"
+                            />
+                            </label>
+
+                            <div class="block mt-4 text-sm">
+                                {% if user_id_logged_role == "supper" %}
+                                <button class="flex items-center justify-between px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+                                        form="form_manage_user" onclick="" type="submit" value="Submit" >
+                                    Update
+                                </button>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input hidden id='account_status' name="account_status" type='text'/>
+            <input hidden id='user_role' name="user_role" type='text'/>
+        </form>
+        <!-- New Table -->
+        <div class="w-full overflow-hidden rounded-lg shadow-xs">
+
+            <div class="w-full overflow-x-auto">
+                <table class="w-full whitespace-no-wrap">
+                    <thead>
+                    <tr
+                            class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
+                    >
+                        <th class="px-4 py-3">User Name</th>
+                        <th class="px-4 py-3">Account Status</th>
+                        <th class="px-4 py-3">Role</th>
+                        <th class="px-4 py-3">Note</th>
+                        <th class="px-4 py-3">Created At</th>
+                        <th class="px-4 py-3">Update At</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                    {% for user in users %}
+                    <tr class="text-gray-700 dark:text-gray-400">
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                                <p class="font-semibold"> {{ user.name }}</p>
+                            </div>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-xs">
+                            <label class="switch">
+                                {% if user.is_active is true %}
+                                <input checked disabled="true" type="checkbox">
+                                {% else %}
+                                <input disabled="true" type="checkbox">
+                                {% endif %}
+                                <span class="slider round"></span>
+                            </label>
+                        </td>
+
+                        <td class="px-4 py-3 text-sm">
+                            <div>
+                                <p> {{ user.role }}</p>
+                            </div>
+
+                        </td>
+
+                         <td class="px-4 py-3 text-sm">
+                            <div>
+                                <p> {{ user.description }}</p>
+                            </div>
+
+                        </td>
+
+                        <td class="px-4 py-3 text-sm">
+                            {{ user.created_at }}
+                        </td>
+
+                        <td class="px-4 py-3 text-sm">
+                            {{ user.updated_at }}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
+                <span class="flex items-center col-span-3">
+                    Total {{ total_active_user }} active users
+                </span>
+            </div>
+        </div>
+        {{ pagination.links }}
+
+    </div>
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    var user_name = document.getElementById("username");
+    user_name.setAttribute('value',"{{ user_first.name }}");
+
+<!--displayRadioValueAccountStatus->
+    displayRadioValueAccountStatus()
+
+<!--displayRadioValueUserRole->
+    displayRadioValueUserRole()
+
+<!--autocomplete user name->
+    var usernameList = []
+    {% for user in users %}
+        usernameList.push("{{ user.name }}");
+    {% endfor %}
+    autocomplete(document.getElementById("username"), usernameList);
+
+<!--checked account status->
+getUserInfo()
+function getUserInfo(){
+    var username = document.getElementById("username").value;
+    var accountStatus = document.getElementsByName("accountStatus");
+    console.log("checked account status")
+    console.log(username)
+    {% for user in users %}
+        if (username === "{{ user.name }}"){
+            console.log("{{ user.is_active }}")
+            if ("{{ user.is_active }}" === "True"){
+                    document.getElementById("active").checked = true;
+                }
+                else{
+                    document.getElementById("deactivate").checked = true;
+                }
+              displayRadioValueAccountStatus()
+
+              if ("{{ user.role }}" === "supper"){
+                    document.getElementById("sAdmin").checked = true;
+                }
+              else if("{{ user.role }}" === "admin"){
+                    document.getElementById("admin").checked = true;
+              }
+                else{
+                    document.getElementById("view").checked = true;
+                }
+              displayRadioValueUserRole()
+
+              var user_desc = document.getElementById("userDesc");
+              userDesc.setAttribute('value',"{{ user.description }}");
+              console.log("{{ user.description }}")
+         }
+    {% endfor %}
+}
+
+
+
+
+</script>
+{% endblock %}
