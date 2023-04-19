@@ -1,17 +1,15 @@
-"""
-To configure the first route
-"""
-import base64
 import configparser
-import json
 import logging
 import os
-import zipfile
+from datetime import datetime
 from subprocess import Popen, PIPE
 from subprocess import check_output
 import flask
 import requests
 import urllib3
+import pandas as pd
+import openpyxl
+from time import sleep
 from flask import (
     current_app as app,
     send_from_directory,
@@ -22,9 +20,9 @@ from flask import (
     flash, abort, make_response, g, jsonify
 )
 from flask_oidc import OpenIDConnect
-from flask_paginate import Pagination, get_page_args
 from urllib3.exceptions import InsecureRequestWarning
 from werkzeug.utils import secure_filename
+
 from .models import *
 
 logging.basicConfig(level=logging.DEBUG)
@@ -81,6 +79,42 @@ def remove_accents(input_str):
     return s
 
 
+def convert_workbook(upload_time):
+    # Open the Excel file
+    print(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{upload_time}")
+    workbook = openpyxl.load_workbook(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{upload_time}.xlsx")
+
+    # Select the worksheet by name
+    worksheet = workbook['Checklist_']
+
+    # Create a new workbook to write the output
+    output_workbook = openpyxl.Workbook()
+
+    # Select the first sheet of the output workbook
+    output_sheet = output_workbook.active
+
+    # Iterate over each row in the original worksheet
+    for row in worksheet.iter_rows():
+        # Create a new row in the output worksheet
+        output_row = []
+        for cell in row:
+            # Check if the cell is within a merged cell range
+            if cell.coordinate in [cell_range.coord for cell_range in worksheet.merged_cells.ranges]:
+                # Get the merged cell value and add it to the output row
+                merged_cell = worksheet.cell(*worksheet.merged_cells(cell.row, cell.column)[0].coord)
+                output_row.append(merged_cell.value)
+            else:
+                # Add the cell value to the output row
+                output_row.append(cell.value)
+
+        # Write the output row to the output worksheet
+        output_sheet.append(output_row)
+
+    # Save the output workbook
+    output_workbook.save(os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{upload_time}.xlsx")
+    print("Output workbook was succeed")
+
+
 def get(url, headers=None):
     try:
         res = req_session.get(url, headers=headers)
@@ -116,6 +150,7 @@ def index():
     else:
         print(g.oidc_id_token)
         email = str(g.oidc_id_token['email'])
+        user_id = str(email).replace("@vng.com.vn", "")
         print(email)
         # get role user_id logged
         user_id_logged = str(g.oidc_id_token['email'])
@@ -138,8 +173,13 @@ def index():
             db.session.commit()
 
         if request.method == 'POST':
+            upload_time = str(datetime.now())
             for file in request.files.getlist('file'):
-                file.save(os.path.join(app.config['TESTCASE_FOLDER'], file.filename))
+                secure_filename(file.filename)
+                # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
+                file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
+                convert_workbook(upload_time)
+
             return render_template("home.html", msg="Files uploaded successfully.")
 
         return render_template("home.html", msg="")
