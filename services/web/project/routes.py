@@ -115,6 +115,59 @@ def convert_workbook(user_id):
     print("Output workbook was succeed")
 
 
+def read_workbook(user_id):
+    print("Starting to read file excel")
+    # Read file excel
+    df = pd.read_excel(os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{user_id}.xlsx")
+    # Set display options to show merged cells
+    pd.set_option('display.expand_frame_repr', False)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    col1 = df['Testcase description']
+    col2 = df['Test to perform']
+
+    # List the required formats
+    count = 0
+    na_arr = []
+    for i in range(len(col1)):
+        if pd.isnull(col1[i]) is False:
+            na_arr += [i]
+            count += 1
+
+    print(na_arr)
+    # Create an objects Series from na_arr
+    na_series = pd.Series(na_arr)
+    count = 0
+    na_series_i = 0
+    start_na_series = 0
+    msg = ""
+    # Export message file
+    for c_desc_i in range(len(col1)):
+        if pd.isnull(col1[c_desc_i]) is False:
+            count += 1
+            print(f"Testcase description {count}:")
+            print(col1[c_desc_i])
+            for na_series_i in range(start_na_series, len(na_series)):
+                print(f"Test to perform {na_series_i + 1}:")
+                try:
+                    # print(f"{na_arr[na_series_i]} >> {na_arr[na_series_i + 1]}")
+                    for k in range(na_arr[na_series_i], na_arr[na_series_i + 1]):
+                        if pd.isnull(col2[k]) is False:
+                            print(col2[k])
+                    start_na_series += 1
+                except BaseException:
+                    try:
+                        for j in range(max(na_arr), max(na_arr) * 10):
+                            if pd.isnull(col2[j]) is False:
+                                print(col2[j])
+                    except BaseException:
+                        print("")
+
+                print()
+                break
+
+
 def get(url, headers=None):
     try:
         res = req_session.get(url, headers=headers)
@@ -179,6 +232,7 @@ def index():
                 # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
                 file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
                 convert_workbook(user_id)
+                read_workbook(user_id)
 
             return render_template("home.html", msg="Files uploaded successfully.")
 
