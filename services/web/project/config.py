@@ -13,3 +13,4 @@ class Config(object):
     STATIC_FOLDER = f"{os.getenv('APP_FOLDER')}/project/static"
     MEDIA_FOLDER = f"{os.getenv('APP_FOLDER')}/project/media"
     PROJECTS_TESTING_FOLDER = f"{os.getenv('APP_FOLDER')}/project/autotest"
+    TESTCASE_FOLDER = f"{os.getenv('APP_FOLDER')}/project/testcase"

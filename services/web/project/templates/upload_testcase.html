@@ -2,18 +2,17 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="contact-us section" id="contact_section">
-    <form method="post" action="/" enctype="multipart/form-data">
+    <form method="post" action="/upload_testcase" enctype="multipart/form-data">
         <div class="container">
             <div class="drop_box_upload">
                 {% if msg %}
-                <div class="alert alert-info" role="alert" id="msgAlert">
+                <div class="alert alert-info" role="alert">
                     <ul>
                         <li>{{ msg }}</li>
                     </ul>
                 </div>
                 {% endif %}
-                <input type="file" accept=".xlsx,.xls" class="form-control" name="file"
-                       placeholder="select a file to upload" required multiple>
+                <input type="file" accept=".xlsx,.xls" class="form-control" name="file" placeholder="select a file to upload" required multiple>
                 <input type="submit" name="submit" class="btn_upload" value="Upload File">
             </div>
         </div>
@@ -23,14 +22,6 @@
 
 {% block scripts %}
 <script>
-    // Set a timeout for msg-alert
-    setTimeout(function(){
-    var elem = document.getElementById("msgAlert");
-    if (elem !== null) {
-        document.getElementById("msgAlert").style.display = "none";
-    }
-
-    }, 1000);
 
 </script>
 {% endblock %}
