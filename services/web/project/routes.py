@@ -146,6 +146,7 @@ def read_workbook(user_id):
     for c_desc_i in range(len(col1)):
         if pd.isnull(col1[c_desc_i]) is False:
             count += 1
+            print(f"**********************************************")
             print(f"Testcase description {count}:")
             print(col1[c_desc_i])
             for na_series_i in range(start_na_series, len(na_series)):
