@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="contact-us section" id="contact_section">
-    <form method="post" action="/" enctype="multipart/form-data">
+    <form id="upload-form" method="post" action="/" enctype="multipart/form-data">
         <div class="container">
             <div class="drop_box_upload">
                 {% if msg %}
@@ -14,7 +14,7 @@
                 {% endif %}
                 <input type="file" accept=".xlsx,.xls" class="form-control" name="file"
                        placeholder="select a file to upload" required multiple>
-                <input type="submit" name="submit" class="btn_upload" value="Upload File">
+                <input type="submit" name="submit" class="btn_upload" value="Upload File" onclick="submitForm(event)">
             </div>
         </div>
     </form>
@@ -31,6 +31,12 @@
     }
 
     }, 1000);
+
+    function submitForm(event) {
+			// Prevent the default form submission behavior
+			event.preventDefault();
+			setTimeout(function();
+		}
 
 </script>
 {% endblock %}

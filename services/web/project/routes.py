@@ -79,10 +79,10 @@ def remove_accents(input_str):
     return s
 
 
-def convert_workbook(upload_time):
+def convert_workbook(user_id):
     # Open the Excel file
-    print(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{upload_time}")
-    workbook = openpyxl.load_workbook(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{upload_time}.xlsx")
+    print(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{user_id}")
+    workbook = openpyxl.load_workbook(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{user_id}.xlsx")
 
     # Select the worksheet by name
     worksheet = workbook['Checklist_']
@@ -111,7 +111,7 @@ def convert_workbook(upload_time):
         output_sheet.append(output_row)
 
     # Save the output workbook
-    output_workbook.save(os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{upload_time}.xlsx")
+    output_workbook.save(os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{user_id}.xlsx")
     print("Output workbook was succeed")
 
 
@@ -177,8 +177,8 @@ def index():
             for file in request.files.getlist('file'):
                 secure_filename(file.filename)
                 # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
-                file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
-                convert_workbook(upload_time)
+                file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
+                convert_workbook(user_id)
 
             return render_template("home.html", msg="Files uploaded successfully.")
 
