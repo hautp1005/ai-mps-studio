@@ -176,7 +176,7 @@ def index():
             upload_time = str(datetime.now())
             for file in request.files.getlist('file'):
                 secure_filename(file.filename)
-                # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
+                # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
                 file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
                 convert_workbook(user_id)
 
