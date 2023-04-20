@@ -172,11 +172,6 @@ def read_workbook(user_id):
                 break
 
 
-def download_file(file_path):
-    # Return a response with the file attached
-    return send_file(file_path, as_attachment=True)
-
-
 def get(url, headers=None):
     try:
         res = req_session.get(url, headers=headers)
@@ -260,14 +255,13 @@ def index():
                 # export file excel from chatgpt
 
                 # download file
-                download_file(OUTPUT_FOLDER)
-
+                return redirect(url_for('download_file'))
             return render_template("home.html", msg="Files uploaded successfully.")
 
         return render_template("home.html", msg="")
 
 
-@app.route('/download-file', methods=['GET'])
+@app.route('/download_file', methods=['GET'])
 def download_file():
     # Return a response with the file attached
     return send_file(OUTPUT_FOLDER, as_attachment=True)
