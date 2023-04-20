@@ -17,7 +17,8 @@ from flask import (
     redirect,
     url_for,
     render_template,
-    flash, abort, make_response, g, jsonify
+    flash, abort, make_response, g, jsonify,
+    send_file
 )
 from flask_oidc import OpenIDConnect
 from urllib3.exceptions import InsecureRequestWarning
@@ -48,6 +49,9 @@ x_headers = {'X-Api-Key': SUPPER_EMAIL}
 app_center_headers = {'accept': "application/json", 'X-API-Token': "59abbb100e3aa366952a02cbdf5661e32f781f3e"}
 
 oidc = OpenIDConnect(app=app, credentials_store=flask.session)
+
+TESTCASE_FOLDER = ""
+OUTPUT_FOLDER = ""
 
 
 def get_shell_script_output_using_communicate(filename):
@@ -81,8 +85,7 @@ def remove_accents(input_str):
 
 def convert_workbook(user_id):
     # Open the Excel file
-    print(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{user_id}")
-    workbook = openpyxl.load_workbook(os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{user_id}.xlsx")
+    workbook = openpyxl.load_workbook(TESTCASE_FOLDER)
 
     # Select the worksheet by name
     worksheet = workbook['Checklist_']
@@ -111,14 +114,14 @@ def convert_workbook(user_id):
         output_sheet.append(output_row)
 
     # Save the output workbook
-    output_workbook.save(os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{user_id}.xlsx")
+    output_workbook.save(OUTPUT_FOLDER)
     print("Output workbook was succeed")
 
 
 def read_workbook(user_id):
     print("Starting to read file excel")
     # Read file excel
-    df = pd.read_excel(os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{user_id}.xlsx")
+    df = pd.read_excel(OUTPUT_FOLDER)
     # Set display options to show merged cells
     pd.set_option('display.expand_frame_repr', False)
     pd.set_option('display.max_rows', None)
@@ -169,6 +172,11 @@ def read_workbook(user_id):
                 break
 
 
+def download_file(file_path):
+    # Return a response with the file attached
+    return send_file(file_path, as_attachment=True)
+
+
 def get(url, headers=None):
     try:
         res = req_session.get(url, headers=headers)
@@ -199,6 +207,7 @@ def login():
 # @oidc.require_login
 def index():
     print('Is Login :' + str(oidc.user_loggedin))
+    global TESTCASE_FOLDER, OUTPUT_FOLDER
     if not check_authorize():
         return redirect(url_for('login'))
     else:
@@ -211,6 +220,9 @@ def index():
         print(user_id_logged)
         get_role_user_id_logged = get_user_role(user_id_logged)
         print("get_role_user_id_logged is " + get_role_user_id_logged)
+
+        TESTCASE_FOLDER = os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{user_id}.xlsx"
+        OUTPUT_FOLDER = os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{user_id}.xlsx"
 
         # Check user id is exits to add
         is_exists = db.session.query(UserTbl).filter(UserTbl.user_id == email).first()
@@ -229,15 +241,36 @@ def index():
         if request.method == 'POST':
             upload_time = str(datetime.now())
             for file in request.files.getlist('file'):
+
+                # generate a secure filename using the original filename
                 secure_filename(file.filename)
+
+                # Save the file with the new filename
                 # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
-                file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{user_id}.xlsx"))
+                file.save(TESTCASE_FOLDER)
+
+                # convert_file
                 convert_workbook(user_id)
+
+                # read file
                 read_workbook(user_id)
+
+                # put to chatgpt
+
+                # export file excel from chatgpt
+
+                # download file
+                download_file(OUTPUT_FOLDER)
 
             return render_template("home.html", msg="Files uploaded successfully.")
 
         return render_template("home.html", msg="")
+
+
+@app.route('/download-file', methods=['GET'])
+def download_file():
+    # Return a response with the file attached
+    return send_file(OUTPUT_FOLDER, as_attachment=True)
 
 
 @app.route('/logout')
