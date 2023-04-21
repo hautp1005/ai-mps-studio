@@ -1,9 +1,10 @@
-import openai
 import pandas as pd
+import requests
+import json
 
 # Set up authentication
-# openai.api_key = "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"
 OUTPUT_FOLDER = "/home/hautp2/Desktop/ai-mps-studio/services/web/project/testcase-output/tc_output_hautp2.xlsx"
+OUTPUT_CONVERTED_FOLDER = "/home/hautp2/Desktop/ai-mps-studio/services/web/project/testcase-output/tc_output_converted_hautp2.xlsx"
 
 
 def read_workbook(user_id):
@@ -57,17 +58,52 @@ def read_workbook(user_id):
 
                 output = ""
                 for i, step in enumerate(test_perform_arr):
-                    output += f"{step};"
+                    output += f"{step}\n"
 
                 # print(output)
 
                 # Define a prompt for the chatbot
-                prompt = "Hãy bổ sung Test to perform cho Testcase description: " + col1[c_desc_i] \
-                         + ". Nội dung như sau : " \
-                         + output
-                print(prompt.strip())
+                url = "https://api.openai.com/v1/chat/completions"
+
+                payload = json.dumps({
+                    "model": "gpt-3.5-turbo",
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": f"Hãy bổ sung Test to perform cho Testcase description: {col1[c_desc_i]} chatgpt phản hồi bằng tiếng việt: " + output
+                        }
+                    ],
+                    "temperature": 0.7
+                })
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer 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'
+                }
+
+                response = requests.request("POST", url, headers=headers, data=payload)
+
+                data = json.loads(response.text)
+
+                # truy cập vào value của content
+                content = data["choices"][0]["message"]["content"]
+
+                test_desc = col1[c_desc_i]
+                test_steps = [content]
+
+                print(f"*************{col1[c_desc_i]}*********************")
+                print(test_steps)
+                test_steps_str = "\n".join(test_steps)
+                df = pd.DataFrame({'Testcase description': [test_desc], 'Test to perform': [test_steps_str]})
+                df = df.assign(**{'Test to perform': df['Test to perform'].str.split('\n')}).explode('Test to perform')
+
+                # save to Excel
+                # Lưu DataFrame vào file Excel đã tồn tại
+                with pd.ExcelWriter(OUTPUT_CONVERTED_FOLDER, mode='a', engine='openpyxl') as writer:
+                    df.to_excel(writer, sheet_name='Sheet', index=False, header=False, if_sheet_exists='replace')
 
                 break
 
 
 read_workbook("user_id")
+
+

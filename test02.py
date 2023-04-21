@@ -1,0 +1,22 @@
+# import pandas as pd
+#
+# test_desc = "Testcase description 1"
+# test_steps = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
+#
+# df = pd.DataFrame({'Testcase description': [test_desc], 'Test to perform': test_steps})
+# df = df.assign(**{'Test to perform': df['Test to perform'].str.split('\n')}).explode('Test to perform')
+# df.to_excel('testcase.xlsx', index=False)
+
+import pandas as pd
+
+test_desc = "Testcase description 1"
+test_steps = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
+test_step1 = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
+test_step2 = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
+
+test_steps_str = "\n".join(test_steps)
+df = pd.DataFrame({'Testcase description': [test_desc], 'Test to perform': [test_steps_str]})
+df = df.assign(**{'Test to perform': df['Test to perform'].str.split('\n')}).explode('Test to perform')
+
+# save to Excel
+df.to_excel('test_steps.xlsx', index=False)

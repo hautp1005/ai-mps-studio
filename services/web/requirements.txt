@@ -11,6 +11,5 @@ requests_oauthlib
 python-dotenv
 flask-paginate
 pyopenssl
-ctgan
 openpyxl
-openai
+xlsxwriter
