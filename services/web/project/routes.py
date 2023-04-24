@@ -149,7 +149,6 @@ def put_workbook_chat_gpt(user_id, convert_output_file_path):
     count = 0
     na_series_i = 0
     start_na_series = 0
-    msg = ""
     outputed = ""
     # Export message file
     for c_desc_i in range(len(col1)):
@@ -310,7 +309,7 @@ def index():
             db.session.commit()
 
         if request.method == 'POST':
-            upload_time = str(datetime.now())
+            # upload_time = str(datetime.now())
             for file in request.files.getlist('file'):
 
                 # generate a secure filename using the original filename
