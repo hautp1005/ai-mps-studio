@@ -1,22 +1,28 @@
-# import pandas as pd
-#
-# test_desc = "Testcase description 1"
-# test_steps = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
-#
-# df = pd.DataFrame({'Testcase description': [test_desc], 'Test to perform': test_steps})
-# df = df.assign(**{'Test to perform': df['Test to perform'].str.split('\n')}).explode('Test to perform')
-# df.to_excel('testcase.xlsx', index=False)
+import openpyxl
 
-import pandas as pd
+OUTPUT_CONVERTED_FOLDER = "/home/hautp2/Desktop/ai-mps-studio/services/web/project/testcase-output/tc_output_converted_hautp3.xlsx"
 
-test_desc = "Testcase description 1"
-test_steps = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
-test_step1 = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
-test_step2 = ["Test to perform:\n1. Mở UI chọn súng trước khi vào battle.\n2. Kiểm tra info hint stats súng ở bảng detail info.\n3. Chọn súng không đạt yêu cầu ở mode chơi Boss.\n4. Kiểm tra Required Stats - chưa thỏa ở mode chơi Boss: có màu đỏ và icon X.\n5. Kiểm tra Required Stats - chưa thỏa ở các mode chơi khác ngoài Boss: có màu vàng và icon X.\n6. Chọn súng đạt yêu cầu ở mode chơi Boss.\n7. Kiểm tra Required Stats - đã thỏa: có màu xanh và icon checkmark ✓.\n8. Kiểm tra hiển thị đúng với all stats: Damage, Recoil, Max Zoom, Stability, Clipsize, Reload.\n9. Kiểm tra hiển thị đúng với các mode chơi: Main mission, Boss, Farm, SpecFarm, GO.\n10. Kiểm tra info hint stats súng ở bảng detail info trong UI chọn súng trước khi vào battle đúng với cả 2 trường hợp.\n11. Chọn part mà game recommend.\n12. Kiểm tra chọn đúng part mà game recommend.\n13. Chọn khác part mà game recommend.\n14. Kiểm tra chọn khác part mà game recommend."]
+# Mở workbook và chọn sheet cần thao tác
+wb = openpyxl.load_workbook(OUTPUT_CONVERTED_FOLDER)
+sheet = wb['Sheet']
 
-test_steps_str = "\n".join(test_steps)
-df = pd.DataFrame({'Testcase description': [test_desc], 'Test to perform': [test_steps_str]})
-df = df.assign(**{'Test to perform': df['Test to perform'].str.split('\n')}).explode('Test to perform')
+# Dữ liệu cần lưu vào file Excel
+data = {'TestCase 1': 'battle1\nbattle2\nbattle3',
+        'TestCase 2': 'battle4\nbattle5\nbattle6',
+        'TestCase 3': 'battle7\nbattle8\nbattle9'}
 
-# save to Excel
-df.to_excel('test_steps.xlsx', index=False)
+# Khai báo biến row bằng 1 để lưu vào cột A
+row = 1
+
+# Vòng lặp lưu từng test case vào cột A và các giá trị tương ứng vào cột B
+for key, value in data.items():
+    sheet.cell(row=row, column=1, value=key)
+    row += 1
+
+    items = value.split('\n')
+    for item in items:
+        sheet.cell(row=row, column=2, value=item)
+        row += 1
+
+# Lưu file Excel
+wb.save(OUTPUT_CONVERTED_FOLDER)
