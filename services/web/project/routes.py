@@ -1,6 +1,7 @@
 import configparser
 import logging
 import os
+import json
 from datetime import datetime
 from subprocess import Popen, PIPE
 from subprocess import check_output
@@ -50,8 +51,10 @@ app_center_headers = {'accept': "application/json", 'X-API-Token': "59abbb100e3a
 
 oidc = OpenIDConnect(app=app, credentials_store=flask.session)
 
-TESTCASE_FOLDER = ""
-OUTPUT_FOLDER = ""
+TESTCASE_FILE = ""
+TESTCASE_CONVERT_FILE = ""
+EXPORT_TESTCASE_FILE = ""
+DATA_SAVE = {}
 
 
 def get_shell_script_output_using_communicate(filename):
@@ -85,7 +88,7 @@ def remove_accents(input_str):
 
 def convert_workbook(user_id):
     # Open the Excel file
-    workbook = openpyxl.load_workbook(TESTCASE_FOLDER)
+    workbook = openpyxl.load_workbook(TESTCASE_FILE)
 
     # Select the worksheet by name
     worksheet = workbook['Checklist_']
@@ -114,14 +117,16 @@ def convert_workbook(user_id):
         output_sheet.append(output_row)
 
     # Save the output workbook
-    output_workbook.save(OUTPUT_FOLDER)
+    output_workbook.save(TESTCASE_CONVERT_FILE)
     print("Output workbook was succeed")
 
 
-def read_workbook(user_id):
+def put_workbook_chat_gpt(user_id, convert_output_file_path):
+    global DATA_SAVE
+
     print("Starting to read file excel")
     # Read file excel
-    df = pd.read_excel(OUTPUT_FOLDER)
+    df = pd.read_excel(convert_output_file_path)
     # Set display options to show merged cells
     pd.set_option('display.expand_frame_repr', False)
     pd.set_option('display.max_rows', None)
@@ -138,38 +143,107 @@ def read_workbook(user_id):
             na_arr += [i]
             count += 1
 
-    print(na_arr)
+    # print(na_arr)
     # Create an objects Series from na_arr
     na_series = pd.Series(na_arr)
     count = 0
     na_series_i = 0
     start_na_series = 0
     msg = ""
+    outputed = ""
     # Export message file
     for c_desc_i in range(len(col1)):
         if pd.isnull(col1[c_desc_i]) is False:
             count += 1
-            print(f"**********************************************")
-            print(f"Testcase description {count}:")
-            print(col1[c_desc_i])
+            test_perform_arr = []
             for na_series_i in range(start_na_series, len(na_series)):
-                print(f"Test to perform {na_series_i + 1}:")
                 try:
                     # print(f"{na_arr[na_series_i]} >> {na_arr[na_series_i + 1]}")
                     for k in range(na_arr[na_series_i], na_arr[na_series_i + 1]):
                         if pd.isnull(col2[k]) is False:
-                            print(col2[k])
+                            test_perform_arr += [col2[k]]
+
                     start_na_series += 1
                 except BaseException:
                     try:
                         for j in range(max(na_arr), max(na_arr) * 10):
                             if pd.isnull(col2[j]) is False:
-                                print(col2[j])
+                                test_perform_arr += [col2[j]]
+
                     except BaseException:
                         print("")
 
-                print()
+                output = ""
+                for i, step in enumerate(test_perform_arr):
+                    output += f"{step}\n"
+
+                count_try = 0
+                for i in range(30):
+                    try:
+                        outputed = output
+                        # Define a prompt for the chatbot
+                        url = "https://api.openai.com/v1/chat/completions"
+
+                        payload = json.dumps({
+                            "model": "gpt-3.5-turbo",
+                            "messages": [
+                                {
+                                    "role": "user",
+                                    "content": f"Hãy bổ sung Test to perform cho Testcase description: {col1[c_desc_i]} chatgpt phản hồi bằng tiếng việt: " + outputed
+                                }
+                            ],
+                            "temperature": 0.7
+                        })
+                        headers = {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer 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'
+                        }
+
+                        response = requests.request("POST", url, headers=headers, data=payload)
+
+                        data = json.loads(response.text)
+
+                        # truy cập vào value của content
+                        content = data["choices"][0]["message"]["content"]
+                        #
+                        test_steps = [content]
+
+                        print(f"*************{col1[c_desc_i]}*********************")
+                        print(test_steps)
+                        count_try = 0
+                        sleep(5)
+                        break
+                    except BaseException:
+                        count_try += 1
+                        print(f"fail {count_try}")
+                        outputed = output
+                        sleep(5)
+
+                DATA_SAVE[col1[c_desc_i]] = outputed
+
                 break
+    return DATA_SAVE
+
+
+def export_data_chatgpt(dt, export_chatgpt_file_path, sheet_name):
+    wb = openpyxl.load_workbook(export_chatgpt_file_path)
+    sheet = wb[sheet_name]
+
+    # Khai báo biến row bằng 1 để lưu vào cột A
+    row = 1
+
+    # Lưu từng test case vào cột A và các giá trị tương ứng vào cột B
+    for key, value in dt.items():
+        sheet.cell(row=row, column=1, value=key)
+        row += 1
+
+        items = value.split('\n')
+        for item in items:
+            sheet.cell(row=row, column=2, value=item)
+            row += 1
+
+    # Lưu file Excel
+    wb.save(export_chatgpt_file_path)
 
 
 def get(url, headers=None):
@@ -202,7 +276,8 @@ def login():
 # @oidc.require_login
 def index():
     print('Is Login :' + str(oidc.user_loggedin))
-    global TESTCASE_FOLDER, OUTPUT_FOLDER
+    global TESTCASE_FILE, TESTCASE_CONVERT_FILE, EXPORT_TESTCASE_FILE
+
     if not check_authorize():
         return redirect(url_for('login'))
     else:
@@ -216,8 +291,9 @@ def index():
         get_role_user_id_logged = get_user_role(user_id_logged)
         print("get_role_user_id_logged is " + get_role_user_id_logged)
 
-        TESTCASE_FOLDER = os.path.join(app.config['TESTCASE_FOLDER']) + f"/tc_{user_id}.xlsx"
-        OUTPUT_FOLDER = os.path.join(app.config['TESTCASE_OUTPUT_FOLDER']) + f"/tc_output_{user_id}.xlsx"
+        TESTCASE_FILE = os.path.join(app.config['TESTCASE_FILE']) + f"/tc_{user_id}.xlsx"
+        TESTCASE_CONVERT_FILE = os.path.join(app.config['TESTCASE_CONVERT_FILE']) + f"/tc_output_{user_id}.xlsx"
+        EXPORT_TESTCASE_FILE = os.path.join(app.config['EXPORT_TESTCASE_FILE']) + f"/tc_output_chatgpt_{user_id}.xlsx"
 
         # Check user id is exits to add
         is_exists = db.session.query(UserTbl).filter(UserTbl.user_id == email).first()
@@ -242,17 +318,13 @@ def index():
 
                 # Save the file with the new filename
                 # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
-                file.save(TESTCASE_FOLDER)
-
-                # convert_file
+                file.save(TESTCASE_FILE)
+                # convert workbook
                 convert_workbook(user_id)
-
-                # read file
-                read_workbook(user_id)
-
-                # put to chatgpt
-
+                # put workbook chatgpt
+                put_wb_chatgpt = put_workbook_chat_gpt(user_id, TESTCASE_CONVERT_FILE)
                 # export file excel from chatgpt
+                export_data_chatgpt(put_wb_chatgpt, EXPORT_TESTCASE_FILE, "Sheet")
 
                 # download file
                 return redirect(url_for('download_file'))
@@ -264,7 +336,7 @@ def index():
 @app.route('/download_file', methods=['GET'])
 def download_file():
     # Return a response with the file attached
-    return send_file(OUTPUT_FOLDER, as_attachment=True)
+    return send_file(EXPORT_TESTCASE_FILE, as_attachment=True)
 
 
 @app.route('/logout')
