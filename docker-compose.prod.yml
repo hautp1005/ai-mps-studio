@@ -5,7 +5,7 @@ services:
     build:
       context: ./services/web
       dockerfile: Dockerfile.prod
-    command: gunicorn --bind 0.0.0.0:5000 app:app
+    command: gunicorn --workers=9 --threads=4 --bind 0.0.0.0:5000 app:app
     container_name: auto-test-app-prod
     restart: always
     volumes:
