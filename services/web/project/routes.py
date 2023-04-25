@@ -264,7 +264,7 @@ def check_authorize():
 
 
 @app.route('/login', methods=['GET'])
-@oidc.require_login
+# @oidc.require_login
 def login():
     if not oidc.user_loggedin:
         return logout()
@@ -274,62 +274,31 @@ def login():
 @app.route('/', methods=["GET", "POST"])
 # @oidc.require_login
 def index():
-    print('Is Login :' + str(oidc.user_loggedin))
     global TESTCASE_FILE, TESTCASE_CONVERT_FILE, EXPORT_TESTCASE_FILE
+    TESTCASE_FILE = os.path.join(app.config['TESTCASE_FILE']) + "/tc_hautp2.xlsx"
+    TESTCASE_CONVERT_FILE = os.path.join(app.config['TESTCASE_CONVERT_FILE']) + "/tc_output_hautp2.xlsx"
+    EXPORT_TESTCASE_FILE = os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx"
 
-    if not check_authorize():
-        return redirect(url_for('login'))
-    else:
-        print(g.oidc_id_token)
-        email = str(g.oidc_id_token['email'])
-        user_id = str(email).replace("@vng.com.vn", "")
-        print(email)
-        # get role user_id logged
-        user_id_logged = str(g.oidc_id_token['email'])
-        print(user_id_logged)
-        get_role_user_id_logged = get_user_role(user_id_logged)
-        print("get_role_user_id_logged is " + get_role_user_id_logged)
-
-        TESTCASE_FILE = os.path.join(app.config['TESTCASE_FILE']) + f"/tc_{user_id}.xlsx"
-        TESTCASE_CONVERT_FILE = os.path.join(app.config['TESTCASE_CONVERT_FILE']) + f"/tc_output_{user_id}.xlsx"
-        EXPORT_TESTCASE_FILE = os.path.join(app.config['EXPORT_TESTCASE_FILE']) + f"/tc_output_chatgpt_{user_id}.xlsx"
-
-        # Check user id is exits to add
-        is_exists = db.session.query(UserTbl).filter(UserTbl.user_id == email).first()
-        if is_exists is None:
-            print("Add user " + email)
-            if email == "hautp2@vng.com.vn":
-                db.session.add(
-                    UserTbl(user_id=email, password="", name=str(email).replace("@vng.com.vn", ""), role="supper",
-                            is_active=True, description=None))
-            else:
-                db.session.add(
-                    UserTbl(user_id=email, password="", name=str(email).replace("@vng.com.vn", ""), role="view",
-                            is_active=True, description=None))
-            db.session.commit()
-
-        if request.method == 'POST':
-            # upload_time = str(datetime.now())
-            for file in request.files.getlist('file'):
-
-                # generate a secure filename using the original filename
-                secure_filename(file.filename)
-
-                # Save the file with the new filename
-                # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
-                file.save(TESTCASE_FILE)
-                # convert workbook
-                convert_workbook(user_id)
-                # put workbook chatgpt
-                put_wb_chatgpt = put_workbook_chat_gpt(user_id, TESTCASE_CONVERT_FILE)
-                # export file excel from chatgpt
-                export_data_chatgpt(put_wb_chatgpt, EXPORT_TESTCASE_FILE, "Sheet")
-
-                # download file
-                return redirect(url_for('download_file'))
-            return render_template("home.html", msg="Files uploaded successfully.")
-
-        return render_template("home.html", msg="")
+    if request.method == 'POST':
+        # upload_time = str(datetime.now())
+        for file in request.files.getlist('file'):
+            print(file)
+        #     # generate a secure filename using the original filename
+        #     secure_filename(file.filename)
+        #
+        #     # Save the file with the new filename
+        #     # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
+        #     file.save(TESTCASE_FILE)
+        #     # convert workbook
+        #     convert_workbook("hautp2")
+        #     # put workbook chatgpt
+        #     put_wb_chatgpt = put_workbook_chat_gpt("hautp2", TESTCASE_CONVERT_FILE)
+        #     # export file excel from chatgpt
+        #     export_data_chatgpt(put_wb_chatgpt, EXPORT_TESTCASE_FILE, "Sheet")
+        #
+        #     # download file
+        #     return redirect(url_for('download_file'))
+    return render_template("home.html", msg="Files uploaded successfully.")
 
 
 @app.route('/download_file', methods=['GET'])
