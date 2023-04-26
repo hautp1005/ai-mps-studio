@@ -14,5 +14,5 @@ class Config(object):
     MEDIA_FOLDER = f"{os.getenv('APP_FOLDER')}/project/media"
     PROJECTS_TESTING_FOLDER = f"{os.getenv('APP_FOLDER')}/project/autotest"
     TESTCASE_FILE = f"{os.getenv('APP_FOLDER')}/project/testcase"
-    TESTCASE_CONVERT_FILE = f"{os.getenv('APP_FOLDER')}/project/testcase-output"
-    EXPORT_TESTCASE_FILE = f"{os.getenv('APP_FOLDER')}/project/testcase-output"
+    TESTCASE_CONVERT_FILE = f"{os.getenv('APP_FOLDER')}/project/testcase_output"
+    EXPORT_TESTCASE_FILE = f"{os.getenv('APP_FOLDER')}/project/testcase_output"
