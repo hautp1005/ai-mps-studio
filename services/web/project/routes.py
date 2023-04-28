@@ -27,7 +27,6 @@ from werkzeug.utils import secure_filename
 
 from .models import *
 
-
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024
 logging.basicConfig(level=logging.DEBUG)
 x_config = configparser.ConfigParser()
@@ -77,7 +76,7 @@ def get_shell_script_output_using_check_output(filename):
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def remove_accents(input_str):
@@ -283,13 +282,13 @@ def index():
     EXPORT_TESTCASE_FILE = os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx"
     # create a file output chatgpt
     output_workbook.save(EXPORT_TESTCASE_FILE)
-
+    message = ""
+    is_chatgpt = False
     if request.method == 'POST':
         # upload_time = str(datetime.now())
         for file in request.files.getlist('file'):
             # generate a secure filename using the original filename
             secure_filename(file.filename)
-
             # Save the file with the new filename
             # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
             file.save(TESTCASE_FILE)
@@ -299,12 +298,10 @@ def index():
             put_wb_chatgpt = put_workbook_chat_gpt("hautp2", TESTCASE_CONVERT_FILE)
             # export file excel from chatgpt
             export_data_chatgpt(put_wb_chatgpt, EXPORT_TESTCASE_FILE, "Sheet")
-
-            # download file
-            return redirect(url_for('download_file'))
-        return render_template("home.html", msg="Files uploaded successfully.")
-
-    return render_template("home.html", msg="")
+            is_chatgpt = True
+        return render_template("home.html", msg="Testcase is completed by ChatGPT, Please download file at link below",
+                               is_chatgpt=is_chatgpt, download_link=url_for('download_file'))
+    return render_template("home.html", msg=message)
 
     # if not check_authorize():
     #     return redirect(url_for('login'))
@@ -363,9 +360,12 @@ def index():
 
 @app.route('/download_file', methods=['GET'])
 def download_file():
-    # Return a response with the file attached
-    logging.info(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx")
-    return send_file(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx", as_attachment=True)
+    if request.method == 'GET':
+        # Return a response with the file attached
+        logging.info(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx")
+        return send_file(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx",
+                         as_attachment=True)
+    return redirect(url_for('/'))
 
 
 @app.route('/upload_file', methods=['POST'])
@@ -382,15 +382,6 @@ def upload_file():
     file.save(os.path.join(app.config['TESTCASE_FILE']) + "/tc_hautp2.xlsx")
 
     return jsonify({'message': 'File uploaded successfully'}), 200
-
-
-@app.route("/upload1", methods=["POST"])
-def upload_file1():
-    file = request.files["file"]
-    filename = file.filename
-    file.save(f"{os.getenv('APP_FOLDER')}/project/testcase/{filename}")
-    logging.info(f"{os.getenv('APP_FOLDER')}/project/testcase/{filename}")
-    return "File uploaded successfully!"
 
 
 @app.route('/logout')

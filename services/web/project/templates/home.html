@@ -5,16 +5,26 @@
     <form id="upload-form" method="POST" action="/" enctype="multipart/form-data">
         <div class="container">
             <div class="drop_box_upload">
-                {% if msg %}
+                {% if is_chatgpt %}
                 <div class="alert alert-info" role="alert" id="msgAlert">
                     <ul>
                         <li>{{ msg }}</li>
+
                     </ul>
                 </div>
+
                 {% endif %}
                 <input type="file" accept=".xlsx,.xls" class="form-control" name="file"
-                       placeholder="select a file to upload" required multiple>
-                <input type="submit" name="submit" class="btn_upload" value="Upload File" onclick="submitForm(event)">
+                       placeholder="select a file to upload" required multiple onchange="checkFileSelected()">
+                <input type="submit" id="upload_file" name="upload_file" class="btn_upload" value="Upload File">
+                <p></p>
+                {% if is_chatgpt %}
+                <div>
+                    <h1><li><a href="{{ download_link }}"  id="download_link">Download file</a></li></h1>
+                </div>
+                {% endif %}
+                <p></p>
+                <div class="loader" id="loading" style="display: none;"></div>
             </div>
         </div>
     </form>
@@ -23,16 +33,35 @@
 
 {% block scripts %}
 <script>
-    // Set a timeout for msg-alert
+// Set a timeout for msg-alert
     setTimeout(function(){
     var elem = document.getElementById("msgAlert");
     if (elem !== null) {
         document.getElementById("msgAlert").style.display = "none";
     }
 
-    }, 1000);
+    }, 3000);
 
 
+function checkFileSelected() {
+  var fileInput = document.querySelector('input[type="file"]');
+  if (fileInput.files.length > 0) {
+    console.log("File selected!");
+    var form = document.getElementsByTagName("upload-form")[0];
+    var uploadButton = document.getElementById("upload_file");
+
+    uploadButton.addEventListener("click", function() {
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("download_link").style.display = "none";
+    });
+
+    form.addEventListener("change", function() {
+        document.getElementById("loading").style.display = "none";
+    });
+  } else {
+    console.log("No file selected!");
+  }
+}
 
 </script>
 {% endblock %}
