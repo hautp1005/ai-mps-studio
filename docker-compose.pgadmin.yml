@@ -21,4 +21,4 @@ volumes:
 networks:
   default:
     external:
-      name: automation-testing-network
+      name: ai-mps-network

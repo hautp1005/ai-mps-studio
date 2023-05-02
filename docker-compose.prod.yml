@@ -6,7 +6,7 @@ services:
       context: ./services/web
       dockerfile: Dockerfile.prod
     command: gunicorn --workers=3 --threads=3 --bind 0.0.0.0:5000 app:app
-    container_name: auto-test-app-prod
+    container_name: ai-mps-app-prod
     restart: always
     volumes:
       - static_volume:/home/app/web/project/static
@@ -22,7 +22,7 @@ services:
 
   db:
     image: postgres:13-alpine
-    container_name: auto-test-db-prod
+    container_name: ai-mps-db-prod
     restart: always
     ports:
       - "5431:5432"
@@ -46,7 +46,7 @@ services:
 
   nginx:
     build: ./services/nginx
-    container_name: auto-test-nginx-prod
+    container_name: ai-mps-nginx-prod
     restart: always
     volumes:
       - static_volume:/home/app/web/project/static
@@ -70,4 +70,4 @@ volumes:
 networks:
   default:
     external:
-      name: automation-testing-network
+      name: ai-mps-network
