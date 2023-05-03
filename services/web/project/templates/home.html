@@ -27,6 +27,7 @@
                 <div class="loader" id="loading" style="display: none;"></div>
             </div>
         </div>
+        <input hidden id='ip_num' name="ip_num" type='text'/>
     </form>
 </div>
 {% endblock %}
@@ -65,6 +66,16 @@ function checkFileSelected() {
     console.log("No file selected!");
   }
 }
+
+// Lấy địa chỉ IP từ https://api.ipify.org
+fetch("https://api.ipify.org/?format=json")
+  .then(response => response.json())
+  .then(data => {
+    console.log("IP Address:", data.ip);
+    const ipAddressInput = document.getElementById("ip_num");
+    ipAddressInput.value = data.ip;
+  })
+  .catch(error => console.error(error));
 
 </script>
 {% endblock %}

@@ -55,6 +55,7 @@ oidc = OpenIDConnect(app=app, credentials_store=flask.session)
 TESTCASE_FILE = ""
 TESTCASE_CONVERT_FILE = ""
 EXPORT_TESTCASE_FILE = ""
+IP_NUM = ""
 DATA_SAVE = {}
 
 # Create a new workbook to write the output
@@ -276,16 +277,24 @@ def login():
 # @oidc.require_login
 def index():
     logging.info('Is Login :' + str(oidc.user_loggedin))
-    global TESTCASE_FILE, TESTCASE_CONVERT_FILE, EXPORT_TESTCASE_FILE
-    TESTCASE_FILE = os.path.join(app.config['TESTCASE_FILE']) + "/tc_hautp2.xlsx"
-    TESTCASE_CONVERT_FILE = os.path.join(app.config['TESTCASE_CONVERT_FILE']) + "/tc_output_hautp2.xlsx"
-    EXPORT_TESTCASE_FILE = os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx"
-    # create a file output chatgpt
-    output_workbook.save(EXPORT_TESTCASE_FILE)
+    global TESTCASE_FILE, TESTCASE_CONVERT_FILE, EXPORT_TESTCASE_FILE, IP_NUM
     message = ""
-    is_chatgpt = False
+
     if request.method == 'POST':
-        # upload_time = str(datetime.now())
+        form_num = str(request.form['ip_num'])
+        if form_num == "":
+            upload_time = str(datetime.now())
+            IP_NUM = str(upload_time)
+        else:
+            IP_NUM = form_num
+
+        TESTCASE_FILE = os.path.join(app.config['TESTCASE_FILE']) + f"/tc_{IP_NUM}.xlsx"
+        TESTCASE_CONVERT_FILE = os.path.join(app.config['TESTCASE_CONVERT_FILE']) + f"/tc_output_{IP_NUM}.xlsx"
+        EXPORT_TESTCASE_FILE = os.path.join(app.config['EXPORT_TESTCASE_FILE']) + f"/tc_output_chatgpt_{IP_NUM}.xlsx"
+        # create a file output chatgpt
+        output_workbook.save(EXPORT_TESTCASE_FILE)
+        is_chatgpt = False
+
         for file in request.files.getlist('file'):
             # generate a secure filename using the original filename
             secure_filename(file.filename)
@@ -293,14 +302,14 @@ def index():
             # file.save(os.path.join(app.config['TESTCASE_FOLDER'], f"tc_{upload_time}.xlsx"))
             file.save(TESTCASE_FILE)
             # convert workbook
-            convert_workbook("hautp2")
+            convert_workbook(IP_NUM)
             # # put workbook chatgpt
-            put_wb_chatgpt = put_workbook_chat_gpt("hautp2", TESTCASE_CONVERT_FILE)
-            # export file excel from chatgpt
-            export_data_chatgpt(put_wb_chatgpt, EXPORT_TESTCASE_FILE, "Sheet")
+            # put_wb_chatgpt = put_workbook_chat_gpt({IP_NUM}, TESTCASE_CONVERT_FILE)
+            # # export file excel from chatgpt
+            # export_data_chatgpt(put_wb_chatgpt, EXPORT_TESTCASE_FILE, "Sheet")
             is_chatgpt = True
         return render_template("home.html", msg="Testcase is completed by ChatGPT, Please download file at link below",
-                               is_chatgpt=is_chatgpt, download_link=url_for('download_file'))
+                               is_chatgpt=is_chatgpt, download_link=url_for('download_file', file_name=IP_NUM))
     return render_template("home.html", msg=message)
 
     # if not check_authorize():
@@ -358,12 +367,12 @@ def index():
     #     return render_template("home.html", msg="")
 
 
-@app.route('/download_file', methods=['GET'])
-def download_file():
+@app.route('/download_file/<file_name>', methods=['GET'])
+def download_file(file_name):
     if request.method == 'GET':
         # Return a response with the file attached
-        logging.info(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx")
-        return send_file(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + "/tc_output_chatgpt_hautp2.xlsx",
+        logging.info(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + f"/tc_output_chatgpt_{file_name}.xlsx")
+        return send_file(os.path.join(app.config['EXPORT_TESTCASE_FILE']) + f"/tc_output_chatgpt_{file_name}.xlsx",
                          as_attachment=True)
     return redirect(url_for('/'))
 
@@ -379,7 +388,7 @@ def upload_file():
         return jsonify({'error': 'Empty filename submitted'}), 400
 
     # Replace 'uploads' with a directory path to store the uploaded files
-    file.save(os.path.join(app.config['TESTCASE_FILE']) + "/tc_hautp2.xlsx")
+    file.save(os.path.join(app.config['TESTCASE_FILE']) + f"/tc_{IP_NUM}.xlsx")
 
     return jsonify({'message': 'File uploaded successfully'}), 200
 
