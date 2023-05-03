@@ -275,7 +275,7 @@ def login():
 @app.route('/', methods=["GET", "POST"])
 # @oidc.require_login
 def index():
-    print('Is Login :' + str(oidc.user_loggedin))
+    logging.info('Is Login :' + str(oidc.user_loggedin))
     global TESTCASE_FILE, TESTCASE_CONVERT_FILE, EXPORT_TESTCASE_FILE
     TESTCASE_FILE = os.path.join(app.config['TESTCASE_FILE']) + "/tc_hautp2.xlsx"
     TESTCASE_CONVERT_FILE = os.path.join(app.config['TESTCASE_CONVERT_FILE']) + "/tc_output_hautp2.xlsx"
